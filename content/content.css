@@ -117,6 +117,8 @@
 .englisher-modal-title {
   font-size: 1.2em;
   font-weight: bold;
+  display: flex;
+  align-items: center;
 }
 
 .englisher-close-btn {
@@ -138,6 +140,11 @@
   text-align: center;
   padding: 20px;
   animation: pulse 1.5s infinite;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.englisher-loading-hidden {
+  opacity: 0;
 }
 
 @keyframes pulse {
@@ -169,4 +176,24 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
+}
+
+.englisher-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 5px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

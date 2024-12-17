@@ -101,17 +101,17 @@ class EnglishAnalyzer {
     
     this.modal.innerHTML = `
       <div class="englisher-modal-header">
-        <div class="englisher-modal-title">语法解析</div>
+        <div class="englisher-modal-title">语法解析<span class="englisher-spinner"></span></div>
         <button class="englisher-close-btn">×</button>
       </div>
       <div class="englisher-content">
-        <div class="englisher-loading">正在分析中...</div>
         <div class="englisher-question">${text}</div>
         <div class="englisher-answer"></div>
       </div>
     `;
     
-    this.loadingDiv = this.modal.querySelector('.englisher-loading');
+    this.spinner = this.modal.querySelector('.englisher-spinner');
+    this.spinner.style.display = 'none';
     
     const closeBtn = this.modal.querySelector('.englisher-close-btn');
     const closeModal = (e) => {
@@ -168,9 +168,7 @@ class EnglishAnalyzer {
     } catch (error) {
       console.error('[handleAnalyzeClick] 分析出错:', error);
       this.updateModalContent('抱歉，分析过程中出现错误。');
-      if (this.loadingDiv) {
-        this.loadingDiv.remove();
-      }
+      this.spinner.style.display = 'none';
     }
   }
 
@@ -205,6 +203,7 @@ class EnglishAnalyzer {
     });
 
     try {
+      this.spinner.style.display = 'inline-block';
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: headers,
@@ -234,9 +233,7 @@ class EnglishAnalyzer {
               if (event.trim() === '[DONE]') {
                 console.log('[analyzeGrammar] Stream finished.');
                 done = true;
-                if (this.loadingDiv) {
-                  this.loadingDiv.remove();
-                }
+                this.spinner.style.display = 'none';
                 break;
               } else {
                 const parsedData = JSON.parse(event);
@@ -253,9 +250,7 @@ class EnglishAnalyzer {
       }
     } catch (error) {
       console.error('[analyzeGrammar] API 请求错误:', error);
-      if (this.loadingDiv) {
-        this.loadingDiv.remove();
-      }
+      this.spinner.style.display = 'none';
       this.updateModalContent('抱歉，分析过程中出现错误。');
     }
   }

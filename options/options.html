@@ -11,12 +11,7 @@
       display: block;
       margin-bottom: 5px;
     }
-    input[type="text"] {
-      padding: 8px;
-      margin-bottom: 10px;
-      width: 300px;
-    }
-    select {
+    input[type="text"], select, textarea {
       padding: 8px;
       margin-bottom: 10px;
       width: 300px;
@@ -89,6 +84,16 @@
     <option value="Pro/meta-llama/Meta-Llama-3.1-8B-Instruct">Pro/meta-llama/Meta-Llama-3.1-8B-Instruct</option>
     <option value="Pro/google/gemma-2-9b-it">Pro/google/gemma-2-9b-it</option>
   </select>
+  <label for="promptSelect">Select Prompt:</label>
+  <select id="promptSelect">
+    <option value="default">Default</option>
+    <option value="simple">Simple</option>
+    <option value="detailed">Detailed</option>
+    <option value="advanced">Advanced</option>
+    <option value="creative">Creative</option>
+  </select>
+  <label for="systemPrompt">System Prompt:</label>
+  <textarea id="systemPrompt" rows="5" placeholder="Enter your system prompt"></textarea>
   <button id="save">Save</button>
   <div id="status"></div>
   <script src="options.js"></script>

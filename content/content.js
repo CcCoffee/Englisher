@@ -4,6 +4,7 @@ class EnglishAnalyzer {
     this.modal = null;
     this.apiKey = null; // 用于存储 API Key
     this.model = null; // 用于存储 model
+    this.systemPrompt = null; // 用于存储 systemPrompt
     this.boundHandleSelection = this.handleSelection.bind(this);
     this.boundRemoveFloatButton = this.removeFloatButton.bind(this);
     this.init();
@@ -12,17 +13,21 @@ class EnglishAnalyzer {
 
   async loadSettings() {
     const settings = await new Promise((resolve) => {
-      chrome.storage.sync.get(['apiKey', 'model'], (result) => {
+      chrome.storage.sync.get(['apiKey', 'model', 'systemPrompt'], (result) => {
         resolve(result);
       });
     });
     this.apiKey = settings.apiKey;
     this.model = settings.model;
+    this.systemPrompt = settings.systemPrompt;
     if (!this.apiKey) {
       throw new Error('API Key 未设置，请在插件选项中设置 API Key。');
     }
     if (!this.model) {
         this.model = 'Qwen/Qwen2.5-7B-Instruct';
+    }
+    if (!this.systemPrompt) {
+        this.systemPrompt = 'You are a helpful assistant that analyzes English grammar for middle school students.';
     }
   }
 
@@ -198,6 +203,9 @@ class EnglishAnalyzer {
     if (!this.model) {
         throw new Error('Model 未设置，请在插件选项中设置 Model。');
     }
+    if (!this.systemPrompt) {
+        throw new Error('System prompt 未设置，请在插件选项中设置 System prompt。');
+    }
     const apiUrl = 'https://api.siliconflow.cn/v1/chat/completions';
     const headers = {
       'Authorization': `Bearer ${this.apiKey}`,
@@ -205,7 +213,7 @@ class EnglishAnalyzer {
     };
     const body = JSON.stringify({
       model: this.model,
-      messages: [{ role: 'user', content: text }],
+      messages: [{ role: 'system', content: this.systemPrompt }, { role: 'user', content: text }],
       stream: true,
       max_tokens: 512,
     });

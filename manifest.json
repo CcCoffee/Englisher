@@ -7,7 +7,7 @@
       "default_popup": "popup/popup.html",
       "default_icon": {
         "16": "icons/icon16.png",
-        "48": "icons/icon48.png", 
+        "48": "icons/icon48.png",
         "128": "icons/icon128.png"
       }
     },
@@ -20,7 +20,7 @@
       "activeTab",
       "storage",
       "contextMenus",
-      "aiLanguageModelOriginTrial" 
+      "aiLanguageModelOriginTrial"
     ],
     "content_scripts": [
       {
@@ -28,5 +28,6 @@
         "js": ["content/content.js"],
         "css": ["content/content.css"]
       }
-    ]
+    ],
+    "options_page": "options/options.html"
   }

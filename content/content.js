@@ -2,10 +2,23 @@ class EnglishAnalyzer {
   constructor() {
     this.floatBtn = null;
     this.modal = null;
-    this.apiKey = ''; // 用于存储 API Key
+    this.apiKey = null; // 用于存储 API Key
     this.boundHandleSelection = this.handleSelection.bind(this);
     this.boundRemoveFloatButton = this.removeFloatButton.bind(this);
     this.init();
+    this.loadApiKey();
+  }
+
+  async loadApiKey() {
+    const apiKey = await new Promise((resolve) => {
+      chrome.storage.sync.get(['apiKey'], (result) => {
+        resolve(result.apiKey);
+      });
+    });
+    this.apiKey = apiKey;
+    if (!apiKey) {
+      throw new Error('API Key 未设置，请在插件选项中设置 API Key。');
+    }
   }
 
   init() {
@@ -171,7 +184,7 @@ class EnglishAnalyzer {
   // 添加 analyzeGrammar 方法
   async analyzeGrammar(text) {
     if (!this.apiKey) {
-      throw new Error('API Key 未设置');
+      throw new Error('API Key 未设置，请在插件选项中设置 API Key。');
     }
     const apiUrl = 'https://api.siliconflow.cn/v1/chat/completions';
     const headers = {

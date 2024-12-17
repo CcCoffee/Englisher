@@ -1,3 +1,4 @@
+// import { marked } from '../libs/marked.min.js';
 class EnglishAnalyzer {
   constructor() {
     this.floatBtn = null;
@@ -9,6 +10,7 @@ class EnglishAnalyzer {
     this.boundRemoveFloatButton = this.removeFloatButton.bind(this);
     this.init();
     this.loadSettings();
+    this.currentContent = '';
   }
 
   async loadSettings() {
@@ -183,7 +185,8 @@ class EnglishAnalyzer {
     if (this.modal) {
       const answerDiv = this.modal.querySelector('.englisher-answer');
       if (answerDiv) {
-        answerDiv.innerHTML += content;
+        this.currentContent = (this.currentContent || '') + content;
+        answerDiv.innerHTML = marked.parse(this.currentContent);
       } else {
         console.error('[updateModalContent] 未找到答案区域');
       }

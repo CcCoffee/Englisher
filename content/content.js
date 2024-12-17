@@ -3,21 +3,26 @@ class EnglishAnalyzer {
     this.floatBtn = null;
     this.modal = null;
     this.apiKey = null; // 用于存储 API Key
+    this.model = null; // 用于存储 model
     this.boundHandleSelection = this.handleSelection.bind(this);
     this.boundRemoveFloatButton = this.removeFloatButton.bind(this);
     this.init();
-    this.loadApiKey();
+    this.loadSettings();
   }
 
-  async loadApiKey() {
-    const apiKey = await new Promise((resolve) => {
-      chrome.storage.sync.get(['apiKey'], (result) => {
-        resolve(result.apiKey);
+  async loadSettings() {
+    const settings = await new Promise((resolve) => {
+      chrome.storage.sync.get(['apiKey', 'model'], (result) => {
+        resolve(result);
       });
     });
-    this.apiKey = apiKey;
-    if (!apiKey) {
+    this.apiKey = settings.apiKey;
+    this.model = settings.model;
+    if (!this.apiKey) {
       throw new Error('API Key 未设置，请在插件选项中设置 API Key。');
+    }
+    if (!this.model) {
+        this.model = 'Qwen/Qwen2.5-7B-Instruct';
     }
   }
 
@@ -190,13 +195,16 @@ class EnglishAnalyzer {
     if (!this.apiKey) {
       throw new Error('API Key 未设置，请在插件选项中设置 API Key。');
     }
+    if (!this.model) {
+        throw new Error('Model 未设置，请在插件选项中设置 Model。');
+    }
     const apiUrl = 'https://api.siliconflow.cn/v1/chat/completions';
     const headers = {
       'Authorization': `Bearer ${this.apiKey}`,
       'Content-Type': 'application/json'
     };
     const body = JSON.stringify({
-      model: 'Qwen/Qwen2.5-7B-Instruct',
+      model: this.model,
       messages: [{ role: 'user', content: text }],
       stream: true,
       max_tokens: 512,

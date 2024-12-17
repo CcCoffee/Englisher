@@ -89,13 +89,10 @@ class EnglishAnalyzer {
 
   // 修改 isEnglish 方法，添加单词数量判断
   isEnglish(text) {
-    // 基本的英文字符判断
-    const isEnglishChars = /^[A-Za-z0-9\s\.,\?!'"’\n:]+$/.test(text);
-    
     // 计算单词数量
     const wordCount = text.trim().split(/\s+/).length;
     
-    return isEnglishChars && wordCount >= 3;
+    return wordCount >= 3;
   }
 
   // 修改 showModal 方法，优化事件处理

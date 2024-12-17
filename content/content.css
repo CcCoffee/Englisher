@@ -31,7 +31,7 @@
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     z-index: 10001;
     width: 500px;
-    max-height: 80vh;
+    max-height: 90vh;
     overflow-y: auto;
     display: block;
   }
@@ -103,7 +103,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1001;
   width: 60%;
-  max-height: 80%;
+  max-height: 90vh;
   overflow-y: auto;
 }
 

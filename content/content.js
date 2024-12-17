@@ -186,7 +186,24 @@ class EnglishAnalyzer {
       const answerDiv = this.modal.querySelector('.englisher-answer');
       if (answerDiv) {
         this.currentContent = (this.currentContent || '') + content;
-        answerDiv.innerHTML = marked.parse(this.currentContent);
+        // Create an iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        
+        // Append the iframe to the answerDiv
+        answerDiv.innerHTML = ''; // Clear previous content
+        answerDiv.appendChild(iframe);
+  
+        // Get the iframe's document
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        
+        // Write the markdown content to the iframe
+        iframeDoc.body.innerHTML = marked.parse(this.currentContent);
+        
+        // Dynamically set the iframe's height
+        iframe.style.height = `${iframe.contentDocument.body.scrollHeight + 10}px`;
       } else {
         console.error('[updateModalContent] 未找到答案区域');
       }

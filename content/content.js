@@ -106,9 +106,12 @@ class EnglishAnalyzer {
       </div>
       <div class="englisher-content">
         <div class="englisher-loading">正在分析中...</div>
-        <div class="englisher-text">${text}</div>
+        <div class="englisher-question">${text}</div>
+        <div class="englisher-answer"></div>
       </div>
     `;
+    
+    this.loadingDiv = this.modal.querySelector('.englisher-loading');
     
     const closeBtn = this.modal.querySelector('.englisher-close-btn');
     const closeModal = (e) => {
@@ -165,16 +168,19 @@ class EnglishAnalyzer {
     } catch (error) {
       console.error('[handleAnalyzeClick] 分析出错:', error);
       this.updateModalContent('抱歉，分析过程中出现错误。');
+      if (this.loadingDiv) {
+        this.loadingDiv.remove();
+      }
     }
   }
 
   updateModalContent(content) {
     if (this.modal) {
-      const contentDiv = this.modal.querySelector('.englisher-text');
-      if (contentDiv) {
-        contentDiv.innerHTML += content;
+      const answerDiv = this.modal.querySelector('.englisher-answer');
+      if (answerDiv) {
+        answerDiv.innerHTML += content;
       } else {
-        console.error('[updateModalContent] 未找到内容区域');
+        console.error('[updateModalContent] 未找到答案区域');
       }
     } else {
       console.error('[updateModalContent] 模态框不存在');
@@ -228,6 +234,9 @@ class EnglishAnalyzer {
               if (event.trim() === '[DONE]') {
                 console.log('[analyzeGrammar] Stream finished.');
                 done = true;
+                if (this.loadingDiv) {
+                  this.loadingDiv.remove();
+                }
                 break;
               } else {
                 const parsedData = JSON.parse(event);
@@ -244,7 +253,10 @@ class EnglishAnalyzer {
       }
     } catch (error) {
       console.error('[analyzeGrammar] API 请求错误:', error);
-      throw error;
+      if (this.loadingDiv) {
+        this.loadingDiv.remove();
+      }
+      this.updateModalContent('抱歉，分析过程中出现错误。');
     }
   }
 

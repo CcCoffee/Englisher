@@ -31,12 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
 例如，输入句子为：“She can sing beautifully.”
 - **翻译**：她的歌声非常好听。
 - **分析结构**：
+  - 句子类型：陈述句
+  - 核心句式：主-谓
   - 主要成分：
     1. 主语：She
     2. 谓语：can sing
     3. 状语：beautifully
-  - 句子类型：陈述句
-  - 核心句式：主-谓
 - **语法规则**：
   1. “She”是主语，代词形式，用于指代人或物。
   2. “can”是情态动词，接动词原形，表示能力。

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const newButton = document.getElementById('newBtn');
 
   const grammarPrompts = {
-    'grammar_analyzer': 
+    '语法分析器': 
 `
 你是一个有用的助手，可以分析英语句子的语法。总是用中文回复。
 # 步骤
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
 - **改进建议**：[针对此句的提升建议]
 
 # 示例
-例如，输入句子为：“She can sing beautifully.”
+例如，输入句子为："She can sing beautifully."
 - **翻译**：她的歌声非常好听。
 - **分析结构**：
   - 句子类型：陈述句
@@ -41,10 +41,10 @@ document.addEventListener('DOMContentLoaded', function () {
     2. 谓语：can sing
     3. 状语：beautifully
 - **语法规则**：
-  1. “She”是主语，代词形式，用于指代人或物。
-  2. “can”是情态动词，接动词原形，表示能力。
-  3. “sing”是动词，作为谓语表示动作。
-  4. “beautifully”是副词，修饰动词，表示方式。
+  1. "She"是主语，代词形式，用于指代人或物。
+  2. "can"是情态动词，接动词原形，表示能力。
+  3. "sing"是动词，作为谓语表示动作。
+  4. "beautifully"是副词，修饰动词，表示方式。
 - **改进建议**：句子结构正确，无需改动。
 # 注意事项
 - 所有英语句子的核心句式都能够匹配到以下五种中的一个，必须从中挑选一个。
@@ -56,9 +56,9 @@ document.addEventListener('DOMContentLoaded', function () {
 - 确保解释清晰，例子易懂。
 - 输出建议时，以语法和实际运用为出发点。
 `,
-    'concise': '你是一个简洁的英语语法分析助手。请分析给定文本的语法，并提供主要成分和句子类型。总是用中文回复。\n\n输出格式：\n翻译：[中文翻译]\n分析结构：\n  - 主要成分：[主语、谓语、宾语、补语等分析]\n  - 句子类型：[陈述句、疑问句、祈使句等]',
-    'error_focused': '你是一个专注于错误的英语语法检查助手。请分析给定文本的语法，找出其中的语法错误，并提供修改建议。总是用中文回复。\n\n输出格式：\n翻译：[中文翻译]\n语法错误：[语法错误分析]\n修改建议：[修改建议]',
-    'comparative': '你是一个比较英语语法分析助手。请分析给定的两个句子，找出它们之间的语法差异，并解释原因。总是用中文回复。\n\n输出格式：\n翻译1：[句子1的中文翻译]\n翻译2：[句子2的中文翻译]\n语法差异：[句子1和句子2的语法差异分析]\n原因解释：[语法差异的原因解释]'
+    '简洁': '你是一个简洁的英语语法分析助手。请分析给定文本的语法，并提供主要成分和句子类型。总是用中文回复。\n\n输出格式：\n翻译：[中文翻译]\n分析结构：\n  - 主要成分：[主语、谓语、宾语、补语等分析]\n  - 句子类型：[陈述句、疑问句、祈使句等]',
+    '错误聚焦': '你是一个专注于错误的英语语法检查助手。请分析给定文本的语法，找出其中的语法错误，并提供修改建议。总是用中文回复。\n\n输出格式：\n翻译：[中文翻译]\n语法错误：[语法错误分析]\n修改建议：[修改建议]',
+    '比较': '你是一个比较英语语法分析助手。请分析给定的两个句子，找出它们之间的语法差异，并解释原因。总是用中文回复。\n\n输出格式：\n翻译1：[句子1的中文翻译]\n翻译2：[句子2的中文翻译]\n语法差异：[句子1和句子2的语法差异分析]\n原因解释：[语法差异的原因解释]'
   };
 
   // Function to show notification
@@ -68,6 +68,13 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
       notificationDiv.style.display = 'none';
     }, 3000); // Hide after 3 seconds
+  }
+
+  // 公共函数：将输入框恢复为选择框
+  function restoreSelectFromInput() {
+    if (document.getElementById('promptInput')) {
+      promptInput.parentNode.replaceChild(promptSelect, promptInput);
+    }
   }
 
   // Load saved settings
@@ -138,20 +145,15 @@ document.addEventListener('DOMContentLoaded', function () {
       const savedSystemPrompt = result.systemPrompt || grammarPrompts['grammar_analyzer'];
       const customPrompts = result.customPrompts || {};
 
-      // Clear custom prompts from promptSelect
+      // 恢复选择框
+      restoreSelectFromInput();
+
+      // 清除promptSelect的所有选项
       while (promptSelect.options.length > 0) {
         promptSelect.remove(0);
       }
 
-      // Repopulate promptSelect with custom prompts
-      for (const key in customPrompts) {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = key;
-        promptSelect.appendChild(option);
-      }
-
-      // Set the selected value of the promptSelect dropdown
+      // 重新添加预设的提示词选项
       for (const key in grammarPrompts) {
         const option = document.createElement('option');
         option.value = key;
@@ -159,6 +161,15 @@ document.addEventListener('DOMContentLoaded', function () {
         promptSelect.appendChild(option);
       }
 
+      // 重新添加自定义提示词选项
+      for (const key in customPrompts) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = key;
+        promptSelect.appendChild(option);
+      }
+
+      // 设置默认选中的选项和系统提示词
       if (customPrompts[savedPromptSelectValue]) {
         promptSelect.value = savedPromptSelectValue;
         systemPromptTextarea.value = customPrompts[savedPromptSelectValue];
@@ -167,7 +178,9 @@ document.addEventListener('DOMContentLoaded', function () {
         systemPromptTextarea.value = savedSystemPrompt;
       }
 
-      promptInput.value = promptSelect.options[promptSelect.selectedIndex].textContent;
+      // 重置按钮状态
+      replaceButton.disabled = true;
+      newButton.disabled = true;
 
       showNotification('选项已重置');
     });
@@ -238,7 +251,12 @@ document.addEventListener('DOMContentLoaded', function () {
         promptSelect.value = newPromptName;
         systemPromptTextarea.value = newPromptContent;
 
-        promptSelect.parentNode.replaceChild(promptSelect, promptInput);
+        // 恢复选择框
+        restoreSelectFromInput();
+
+        // 重置按钮状态
+        replaceButton.disabled = true;
+        newButton.disabled = true;
       });
     });
   });
@@ -277,7 +295,12 @@ document.addEventListener('DOMContentLoaded', function () {
         promptSelect.value = newPromptName;
         systemPromptTextarea.value = newPromptContent;
 
-        promptSelect.parentNode.replaceChild(promptSelect, promptInput);
+        // 恢复选择框
+        restoreSelectFromInput();
+
+        // 重置按钮状态
+        replaceButton.disabled = true;
+        newButton.disabled = true;
       });
     });
   });

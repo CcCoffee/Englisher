@@ -73,8 +73,19 @@ document.addEventListener('DOMContentLoaded', function () {
       promptSelect.appendChild(option);
     });
 
-    // 设置默认选中项
-    promptSelect.value = '语法分析器';
+    // 优先从存储获取 promptSelect 值，如果没有则使用默认值
+    chrome.storage.sync.get(['promptSelect'], function(result) {
+      const defaultPrompt = '语法分析器';
+      const storedPrompt = result.promptSelect;
+
+      if (storedPrompt && sortedKeys.includes(storedPrompt)) {
+        promptSelect.value = storedPrompt;
+      } else {
+        promptSelect.value = defaultPrompt;
+        // 如果没有存储值或存储值无效，则保存默认值
+        chrome.storage.sync.set({ promptSelect: defaultPrompt });
+      }
+    });
   }
 
   // Function to show notification
@@ -95,15 +106,22 @@ document.addEventListener('DOMContentLoaded', function () {
     chrome.storage.sync.get(['prompts'], function(result) {
       const prompts = result.prompts || {};
       const selectedPrompt = promptSelect.value;
-      // 可以在这里添加额外的处理逻辑
+      const selectedPromptContent = prompts[selectedPrompt] || prompts['语法分析器'];
+
+      // 保存当前选择的提示词和其内容
+      chrome.storage.sync.set({ 
+        promptSelect: selectedPrompt,
+        systemPrompt: selectedPromptContent
+      }, function() {
+        showNotification('提示词已更新');
+      });
     });
   });
 
   // Load saved settings
-  chrome.storage.sync.get(['apiKey', 'model', 'promptSelect'], function (data) {
+  chrome.storage.sync.get(['apiKey', 'model'], function (data) {
     apiKeyInput.value = data.apiKey || '';
     modelSelect.value = data.model || 'meta-llama/Llama-3.3-70B-Instruct';
-    promptSelect.value = data.promptSelect || '语法分析器';
   });
 
   // 保存设置

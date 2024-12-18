@@ -80,9 +80,24 @@ document.addEventListener('DOMContentLoaded', function () {
       promptSelect.appendChild(option);
     });
 
-    // 设置默认选中项和系统提示词
-    promptSelect.value = '语法分析器';
-    systemPromptTextarea.value = prompts['语法分析器'];
+    // 优先从存储获取 promptSelect 值，如果没有则使用默认值
+    chrome.storage.sync.get(['promptSelect'], function(result) {
+      const defaultPrompt = '语法分析器';
+      const storedPrompt = result.promptSelect;
+
+      if (storedPrompt && sortedKeys.includes(storedPrompt)) {
+        promptSelect.value = storedPrompt;
+        systemPromptTextarea.value = prompts[storedPrompt];
+      } else {
+        promptSelect.value = defaultPrompt;
+        systemPromptTextarea.value = prompts[defaultPrompt];
+        // 如果没有存储值或存储值无效，则保存默认值
+        chrome.storage.sync.set({ 
+          promptSelect: defaultPrompt,
+          systemPrompt: prompts[defaultPrompt]
+        });
+      }
+    });
   }
 
   // Function to show notification
@@ -115,17 +130,9 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Load saved settings
-  chrome.storage.sync.get(['apiKey', 'model', 'promptSelect', 'systemPrompt'], function (data) {
+  chrome.storage.sync.get(['apiKey', 'model'], function (data) {
     apiKeyInput.value = data.apiKey || '';
-    const savedPromptSelectValue = data.promptSelect || '语法分析器';
-
-    // Initialize promptInput
-    promptInput.type = 'text';
-    promptInput.className = promptSelect.className;
-    promptInput.id = 'promptInput';
-    promptInput.value = promptSelect.options[promptSelect.selectedIndex].textContent;
-    promptInput.style.width = '85%';
-    promptInput.style.marginRight = '10px';
+    modelSelect.value = data.model || 'meta-llama/Llama-3.3-70B-Instruct';
   });
 
   // Save settings

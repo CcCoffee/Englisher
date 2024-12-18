@@ -5,8 +5,8 @@
   <title>Englisher Options</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 p-6">
-  <div class="container mx-auto max-w-3xl bg-white rounded-lg shadow-md p-6">
+<body class="bg-gray-100 p-6 h-screen">
+  <div class="container mx-auto max-w-3xl bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
     <h1 class="text-2xl font-bold mb-4">Englisher Options</h1>
     <div class="mb-4">
       <label for="apiKey" class="block text-gray-700 text-sm font-bold mb-2">Siliconflow API Key:</label>
@@ -71,12 +71,12 @@
         <option value="comparative">Comparative</option>
       </select>
     </div>
-    <div class="mb-4">
+    <div class="mb-10 flex-1">
       <label for="systemPrompt" class="block text-gray-700 text-sm font-bold mb-2">System Prompt:</label>
-      <textarea id="systemPrompt" rows="20" placeholder="Enter your system prompt" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+      <textarea id="systemPrompt" rows="5" placeholder="Enter your system prompt" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-full"></textarea>
     </div>
     <button id="save" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Save</button>
-    <div id="status" class="mt-4 font-bold"></div>
+    <div id="status" class="mt-2 font-bold"></div>
   </div>
   <script src="options.js"></script>
 </body>

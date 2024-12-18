@@ -1,79 +1,137 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const apiKeyInput = document.getElementById('apiKey');
-    const modelSelect = document.getElementById('model');
-    const promptSelect = document.getElementById('promptSelect');
-    const notification = document.getElementById('notification');
+document.addEventListener('DOMContentLoaded', function () {
+  const apiKeyInput = document.getElementById('apiKey');
+  const modelSelect = document.getElementById('model');
+  const promptSelect = document.getElementById('promptSelect');
+  const notificationDiv = document.getElementById('notification');
 
-    // 加载保存的设置
-    chrome.storage.sync.get(['siliconflowApiKey', 'selectedModel', 'selectedPrompt', 'presetPrompts'], function(data) {
-        // 恢复API密钥
-        if (data.siliconflowApiKey) {
-            apiKeyInput.value = data.siliconflowApiKey;
+  // 初始化模型选择器
+  function initializeModelSelect() {
+    fetch('../settings.json')
+      .then(response => response.json())
+      .then(data => {
+        // 清除现有选项
+        while (modelSelect.options.length > 0) {
+          modelSelect.remove(0);
         }
 
-        // 加载模型选择
-        const models = [
-            { value: 'yi-34b-chat', label: 'Yi-34B Chat' },
-            { value: 'qwen-72b-chat', label: 'Qwen-72B Chat' },
-            { value: 'chatglm-6b', label: 'ChatGLM-6B' }
-        ];
-
-        models.forEach(model => {
-            const option = document.createElement('option');
-            option.value = model.value;
-            option.textContent = model.label;
-            modelSelect.appendChild(option);
+        // 添加模型选项
+        data.models.forEach(model => {
+          const option = document.createElement('option');
+          option.value = model;
+          option.textContent = model;
+          modelSelect.appendChild(option);
         });
 
-        // 恢复选中的模型
-        if (data.selectedModel) {
-            modelSelect.value = data.selectedModel;
-        }
-
-        // 加载预设系统提示词
-        const defaultPrompts = [
-            { value: 'academic', label: '学术写作助手' },
-            { value: 'creative', label: '创意写作助手' },
-            { value: 'professional', label: '职场沟通助手' }
-        ];
-
-        // 合并默认提示词和用户保存的提示词
-        const presetPrompts = [...defaultPrompts, ...(data.presetPrompts || [])];
-
-        presetPrompts.forEach(prompt => {
-            const option = document.createElement('option');
-            option.value = prompt.value;
-            option.textContent = prompt.label;
-            promptSelect.appendChild(option);
+        // 设置默认选中项
+        chrome.storage.sync.get(['model'], function(result) {
+          modelSelect.value = result.model || 'meta-llama/Llama-3.3-70B-Instruct';
         });
+      })
+      .catch(error => {
+        console.error('加载模型列表失败:', error);
+        showNotification('加载模型列表失败');
+      });
+  }
 
-        // 恢复选中的提示词
-        if (data.selectedPrompt) {
-            promptSelect.value = data.selectedPrompt;
-        }
+  // 初始化预设提示词
+  function initializePrompts() {
+    fetch('../settings.json')
+      .then(response => response.json())
+      .then(data => {
+        chrome.storage.sync.get(['prompts'], function(result) {
+          if (!result.prompts) {
+            // 首次使用，加载默认提示词
+            chrome.storage.sync.set({ prompts: data.prompts }, function() {
+              loadPrompts(data.prompts);
+            });
+          } else {
+            loadPrompts(result.prompts);
+          }
+        });
+      })
+      .catch(error => {
+        console.error('加载预设提示词失败:', error);
+        showNotification('加载预设提示词失败');
+      });
+  }
+
+  // 加载提示词到下拉框
+  function loadPrompts(prompts) {
+    // 清除现有选项
+    while (promptSelect.options.length > 0) {
+      promptSelect.remove(0);
+    }
+
+    // 按字符自然排序
+    const sortedKeys = Object.keys(prompts).sort();
+
+    // 添加排序后的选项
+    sortedKeys.forEach(key => {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = key;
+      promptSelect.appendChild(option);
     });
 
-    // 保存设置的事件监听器
-    function saveSettings() {
-        chrome.storage.sync.set({
-            siliconflowApiKey: apiKeyInput.value,
-            selectedModel: modelSelect.value,
-            selectedPrompt: promptSelect.value
-        }, function() {
-            showNotification('设置已保存');
-        });
-    }
+    // 设置默认选中项
+    promptSelect.value = '语法分析器';
+  }
 
-    apiKeyInput.addEventListener('change', saveSettings);
-    modelSelect.addEventListener('change', saveSettings);
-    promptSelect.addEventListener('change', saveSettings);
+  // Function to show notification
+  function showNotification(message) {
+    notificationDiv.textContent = message;
+    notificationDiv.classList.add('show');
+    setTimeout(() => {
+      notificationDiv.classList.remove('show');
+    }, 3000); // Hide after 3 seconds
+  }
 
-    // 显示通知
-    function showNotification(message) {
-        notification.textContent = message;
-        notification.classList.add('show');
-        setTimeout(() => {
-            notification.classList.remove('show');
-        }, 2000);
-    }
+  // 初始化模型和提示词
+  initializeModelSelect();
+  initializePrompts();
+
+  // 添加预设系统提示词选择事件监听器
+  promptSelect.addEventListener('change', function() {
+    chrome.storage.sync.get(['prompts'], function(result) {
+      const prompts = result.prompts || {};
+      const selectedPrompt = promptSelect.value;
+      // 可以在这里添加额外的处理逻辑
+    });
+  });
+
+  // Load saved settings
+  chrome.storage.sync.get(['apiKey', 'model', 'promptSelect'], function (data) {
+    apiKeyInput.value = data.apiKey || '';
+    modelSelect.value = data.model || 'meta-llama/Llama-3.3-70B-Instruct';
+    promptSelect.value = data.promptSelect || '语法分析器';
+  });
+
+  // 保存设置
+  apiKeyInput.addEventListener('change', function () {
+    const apiKey = apiKeyInput.value;
+    const model = modelSelect.value;
+    const promptSelectValue = promptSelect.value;
+
+    chrome.storage.sync.set({ 
+      apiKey: apiKey, 
+      model: model, 
+      promptSelect: promptSelectValue
+    }, function () {
+      showNotification('设置已保存');
+    });
+  });
+
+  modelSelect.addEventListener('change', function () {
+    const apiKey = apiKeyInput.value;
+    const model = modelSelect.value;
+    const promptSelectValue = promptSelect.value;
+
+    chrome.storage.sync.set({ 
+      apiKey: apiKey, 
+      model: model, 
+      promptSelect: promptSelectValue
+    }, function () {
+      showNotification('设置已保存');
+    });
+  });
 });

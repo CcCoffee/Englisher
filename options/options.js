@@ -190,6 +190,10 @@ document.addEventListener('DOMContentLoaded', function () {
             modelSelect.value = result.model || 'meta-llama/Llama-3.3-70B-Instruct';
             loadPrompts(data.prompts);
             systemPromptTextarea.value = data.prompts['语法分析器'];
+            
+            // 确保恢复选择框
+            restoreSelectFromInput();
+            
             showNotification('选项已重置');
           });
         })

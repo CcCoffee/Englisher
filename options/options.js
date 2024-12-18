@@ -249,11 +249,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Add event listener to replaceButton
   replaceButton.addEventListener('click', () => {
+    const oldPromptName = promptSelect.value;
     const newPromptName = promptInput.value;
     const newPromptContent = systemPromptTextarea.value;
 
     chrome.storage.sync.get(['prompts'], (result) => {
       let prompts = result.prompts || {};
+
+      // 如果新旧提示词名称不同，删除旧提示词
+      if (oldPromptName !== newPromptName) {
+        delete prompts[oldPromptName];
+      }
 
       // 更新 prompts
       prompts[newPromptName] = newPromptContent;
@@ -261,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function () {
       chrome.storage.sync.set({ 
         prompts: prompts
       }, function () {
-        showNotification('预设系统提示词已替换');
+        showNotification('预设系统提示词已修改');
         loadPrompts(prompts);
         promptSelect.value = newPromptName;
         systemPromptTextarea.value = newPromptContent;

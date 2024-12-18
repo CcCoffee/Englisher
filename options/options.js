@@ -105,6 +105,15 @@ document.addEventListener('DOMContentLoaded', function () {
   initializeModelSelect();
   initializePrompts();
 
+  // 添加预设系统提示词选择事件监听器
+  promptSelect.addEventListener('change', function() {
+    chrome.storage.sync.get(['prompts'], function(result) {
+      const prompts = result.prompts || {};
+      const selectedPrompt = promptSelect.value;
+      systemPromptTextarea.value = prompts[selectedPrompt] || '';
+    });
+  });
+
   // Load saved settings
   chrome.storage.sync.get(['apiKey', 'model', 'promptSelect', 'systemPrompt'], function (data) {
     apiKeyInput.value = data.apiKey || '';

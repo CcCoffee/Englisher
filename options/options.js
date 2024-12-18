@@ -182,5 +182,137 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // 其余代码保持不变（省略以节省空间）
+  // Add event listener to systemPromptTextarea to handle prompt selection
+  systemPromptTextarea.addEventListener('input', () => {
+    chrome.storage.sync.get(['prompts'], (result) => {
+      const prompts = result.prompts || {};
+      if (systemPromptTextarea.value !== prompts[promptSelect.value]) {
+        replaceButton.disabled = false;
+        promptInput.value = promptSelect.options[promptSelect.selectedIndex].textContent;
+        promptInput.style.width = '85%';
+        promptInput.style.marginRight = '10px';
+        promptSelect.parentNode.replaceChild(promptInput, promptSelect);
+        newButton.disabled = true;
+        deleteButton.disabled = true;
+      } else {
+        replaceButton.disabled = true;
+      }
+    });
+  });
+
+  // Add event listener to promptInput to handle new prompt name
+  promptInput.addEventListener('input', () => {
+    if (promptInput.value !== promptSelect.options[promptSelect.selectedIndex].textContent) {
+      newButton.disabled = false;
+    } else {
+      newButton.disabled = true;
+    }
+  });
+
+  // Add event listener to promptSelect dropdown to update systemPrompt textarea
+  promptSelect.addEventListener('change', () => {
+    chrome.storage.sync.get(['prompts'], (result) => {
+      const prompts = result.prompts || {};
+      systemPromptTextarea.value = prompts[promptSelect.value] || prompts['语法分析器'];
+      promptInput.value = promptSelect.options[promptSelect.selectedIndex].textContent;
+      replaceButton.disabled = true;
+      newButton.disabled = true;
+      deleteButton.disabled = false;
+    });
+  });
+
+  // Add event listener to replaceButton
+  replaceButton.addEventListener('click', () => {
+    const newPromptName = promptInput.value;
+    const newPromptContent = systemPromptTextarea.value;
+
+    chrome.storage.sync.get(['prompts'], (result) => {
+      let prompts = result.prompts || {};
+
+      // 更新 prompts
+      prompts[newPromptName] = newPromptContent;
+
+      chrome.storage.sync.set({ 
+        prompts: prompts
+      }, function () {
+        showNotification('预设系统提示词已替换');
+        loadPrompts(prompts);
+        promptSelect.value = newPromptName;
+        systemPromptTextarea.value = newPromptContent;
+
+        // 恢复选择框
+        restoreSelectFromInput();
+
+        // 重置按钮状态
+        replaceButton.disabled = true;
+        newButton.disabled = true;
+        deleteButton.disabled = false;
+      });
+    });
+  });
+
+  // Add event listener to newButton
+  newButton.addEventListener('click', () => {
+    const newPromptName = promptInput.value;
+    const newPromptContent = systemPromptTextarea.value;
+
+    chrome.storage.sync.get(['prompts'], (result) => {
+      let prompts = result.prompts || {};
+
+      // 更新 prompts
+      prompts[newPromptName] = newPromptContent;
+
+      chrome.storage.sync.set({ 
+        prompts: prompts
+      }, function () {
+        showNotification('预设系统提示词已新建');
+        loadPrompts(prompts);
+        promptSelect.value = newPromptName;
+        systemPromptTextarea.value = newPromptContent;
+
+        // 恢复选择框
+        restoreSelectFromInput();
+
+        // 重置按钮状态
+        replaceButton.disabled = true;
+        newButton.disabled = true;
+        deleteButton.disabled = false;
+      });
+    });
+  });
+
+  // Add event listener to deleteButton
+  deleteButton.addEventListener('click', () => {
+    const currentPromptName = promptSelect.value;
+
+    // 不允许删除默认提示词
+    if (currentPromptName === '语法分析器' || currentPromptName === '简洁' || 
+        currentPromptName === '错误聚焦' || currentPromptName === '比较') {
+      showNotification('不能删除预设提示词');
+      return;
+    }
+
+    chrome.storage.sync.get(['prompts'], (result) => {
+      let prompts = result.prompts || {};
+
+      // 删除当前提示词
+      delete prompts[currentPromptName];
+
+      chrome.storage.sync.set({ 
+        prompts: prompts
+      }, function () {
+        showNotification('预设系统提示词已删除');
+        loadPrompts(prompts);
+        
+        // 设置为默认提示词
+        promptSelect.value = '语法分析器';
+        systemPromptTextarea.value = prompts['语法分析器'];
+
+        // 重置按钮状态
+        deleteButton.disabled = false;
+        replaceButton.disabled = true;
+        newButton.disabled = true;
+      });
+    });
+  });
 });

@@ -1,28 +1,57 @@
 <!DOCTYPE html>
 <html lang="zh">
-<html>
 <head>
   <meta charset="UTF-8">
   <title>Englisher</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
     body {
-      width: 300px;
-      font-family: 'Microsoft YaHei', sans-serif;
+      width: 400px;
     }
-    #sentence {
-      margin-bottom: 10px;
+    .notification {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #fff;
+      color: #212121;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      border: 1px solid #e0e0e0;
+      transition: all 0.3s ease;
     }
-    #analyze, #translate, #collect {
-      margin-bottom: 5px;
+    .notification.show {
+      display: block;
     }
   </style>
 </head>
-<body>
-  <div id="sentence"></div>
-  <button id="analyze">语法解析</button>
-  <button id="translate">翻译</button>
-  <button id="collect">收藏</button>
-  <div id="result"></div>
+<body class="bg-gray-100">
+  <div class="mx-auto bg-white p-4">
+    <h1 class="text-xl font-bold mb-4 text-center">Englisher 设置</h1>
+    
+    <div class="mb-4">
+      <label for="apiKey" class="block text-gray-700 text-sm font-bold mb-2">Siliconflow API 密钥:</label>
+      <input type="password" id="apiKey" placeholder="输入您的 API 密钥" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+    </div>
+
+    <div class="mb-4">
+      <label for="model" class="block text-gray-700 text-sm font-bold mb-2">模型:</label>
+      <select id="model" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <option value="">选择模型</option>
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label for="promptSelect" class="block text-gray-700 text-sm font-bold mb-2">预设系统提示词:</label>
+      <select id="promptSelect" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <option value="">选择预设提示词</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="notification" class="notification"></div>
 
   <script src="popup.js"></script>
 </body>

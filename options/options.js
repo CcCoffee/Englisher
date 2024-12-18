@@ -5,9 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveButton = document.getElementById('save');
   const statusDiv = document.getElementById('status');
   const promptSelect = document.getElementById('promptSelect');
+  const resetButton = document.getElementById('reset');
 
   const grammarPrompts = {
-    'grammar_analyzer': `你是一个有用的助手，可以分析英语句子的语法。总是用中文回复。
+    'grammar_analyzer': 
+`
+你是一个有用的助手，可以分析英语句子的语法。总是用中文回复。
 # 步骤
 
 1. **语法分析**：分析句子的结构，包括词性和短语结构。
@@ -16,37 +19,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
 # 输出格式
 
-按照以下格式输出分析结果：
-
-\\
+按照以下格式输出分析结果，不要有任何空行：
 - **分析结构**：
-  - 主要成分：[主语、谓语、宾语、补语等分析]
-  - 句子类型：[陈述句、疑问句、祈使句等]
-  - 核心句式：主-谓-宾-宾补
-\\
+  1. 句子类型：[陈述句、疑问句、祈使句等]
+  2. 核心句式：主-谓-宾-宾补
+  3. 主要成分：[主语、谓语、宾语、补语等分析]
 - **语法规则**：[详细的语法规则解释及例子]
 - **改进建议**：[针对此句的提升建议]
 
 # 示例
-
 例如，输入句子为：“She can sing beautifully.”
 - **翻译**：她的歌声非常好听。
 - **分析结构**：
   - 主要成分：
-    - 主语：She
-    - 谓语：can sing
-    - 状语：beautifully
+    1. 主语：She
+    2. 谓语：can sing
+    3. 状语：beautifully
   - 句子类型：陈述句
   - 核心句式：主-谓
 - **语法规则**：
-  - “She”是主语，代词形式，用于指代人或物。
-  - “can”是情态动词，接动词原形，表示能力。
-  - “sing”是动词，作为谓语表示动作。
-  - “beautifully”是副词，修饰动词，表示方式。
+  1. “She”是主语，代词形式，用于指代人或物。
+  2. “can”是情态动词，接动词原形，表示能力。
+  3. “sing”是动词，作为谓语表示动作。
+  4. “beautifully”是副词，修饰动词，表示方式。
 - **改进建议**：句子结构正确，无需改动。
-
 # 注意事项
-
+- 所有英语句子的核心句式都能够匹配到以下五种中的一个，必须从中挑选一个。
+  1. 主——谓 ：例如 She cried.
+  2. 主——谓——宾 ：例如 I hit the ball.
+  3. 主——谓——间宾——直宾 ：例如 He gave me a book.
+  4. 主——谓——宾——宾补 ：例如 I found her sleeping.
+  5. 主——系——表 ：例如 The question is whether he will come.
 - 确保解释清晰，例子易懂。
 - 输出建议时，以语法和实际运用为出发点。
 `,
@@ -97,5 +100,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add event listener to promptSelect dropdown to update systemPrompt textarea
   promptSelect.addEventListener('change', () => {
     systemPromptTextarea.value = grammarPrompts[promptSelect.value];
+  });
+
+  resetButton.addEventListener('click', () => {
+    chrome.storage.sync.get(['apiKey', 'model', 'systemPrompt'], (result) => {
+      apiKeyInput.value = result.apiKey || '';
+      modelSelect.value = result.model || 'Qwen/Qwen2.5-7B-Instruct';
+      systemPromptTextarea.value = result.systemPrompt || grammarPrompts['default'];
+      // Set the selected value of the promptSelect dropdown
+      for (const key in grammarPrompts) {
+          if (grammarPrompts[key] === systemPromptTextarea.value) {
+              promptSelect.value = key;
+              break;
+          }
+      }
+      statusDiv.textContent = 'Configuration reset to last saved.';
+      setTimeout(() => {
+        statusDiv.textContent = '';
+      }, 2000);
+    });
   });
 });

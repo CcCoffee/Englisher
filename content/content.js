@@ -236,6 +236,7 @@ class EnglishAnalyzer {
     });
 
     try {
+      this.currentContent = '';
       this.spinner.style.display = 'inline-block';
       const response = await fetch(apiUrl, {
         method: 'POST',

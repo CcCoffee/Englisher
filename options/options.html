@@ -2,18 +2,18 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>Englisher Options</title>
+  <title>Englisher 选项</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 p-6 h-screen">
   <div class="container mx-auto max-w-3xl bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
-    <h1 class="text-2xl font-bold mb-4">Englisher Options</h1>
+    <h1 class="text-2xl font-bold mb-4">Englisher 选项</h1>
     <div class="mb-4">
-      <label for="apiKey" class="block text-gray-700 text-sm font-bold mb-2">Siliconflow API Key:</label>
-      <input type="text" id="apiKey" placeholder="Enter your API Key" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      <label for="apiKey" class="block text-gray-700 text-sm font-bold mb-2">Siliconflow API 密钥:</label>
+      <input type="text" id="apiKey" placeholder="输入您的 API 密钥" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
     </div>
     <div class="mb-4">
-      <label for="model" class="block text-gray-700 text-sm font-bold mb-2">Model:</label>
+      <label for="model" class="block text-gray-700 text-sm font-bold mb-2">模型:</label>
       <select id="model" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         <option value="meta-llama/Llama-3.3-70B-Instruct">meta-llama/Llama-3.3-70B-Instruct</option>
         <option value="AIDC-AI/Marco-o1">AIDC-AI/Marco-o1</option>
@@ -62,20 +62,14 @@
         <option value="Pro/google/gemma-2-9b-it">Pro/google/gemma-2-9b-it</option>
       </select>
     </div>
-    <div class="mb-4">
-      <label for="promptSelect" class="block text-gray-700 text-sm font-bold mb-2">Select Prompt:</label>
-      <select id="promptSelect" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        <option value="grammar_analyzer">Grammar Analyzer</option>
-        <option value="concise">Concise</option>
-        <option value="error_focused">Error Focused</option>
-        <option value="comparative">Comparative</option>
-      </select>
-    </div>
     <div class="mb-10 flex-1">
-      <label for="systemPrompt" class="block text-gray-700 text-sm font-bold mb-2">System Prompt:</label>
-      <textarea id="systemPrompt" rows="5" placeholder="Enter your system prompt" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-full"></textarea>
+      <label for="systemPrompt" class="block text-gray-700 text-sm font-bold mb-2">系统提示:</label>
+      <textarea id="systemPrompt" rows="5" placeholder="输入您的系统提示" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-full"></textarea>
     </div>
-    <button id="save" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Save</button>
+    <div class="flex space-x-2">
+      <button id="reset" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex-1">重置</button>
+      <button id="save" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex-1">保存</button>
+    </div>
     <div id="status" class="mt-2 font-bold"></div>
   </div>
   <script src="options.js"></script>

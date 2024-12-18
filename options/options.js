@@ -1,11 +1,12 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function () {
   const apiKeyInput = document.getElementById('apiKey');
   const modelSelect = document.getElementById('model');
+  const promptSelect = document.getElementById('promptSelect');
   const systemPromptTextarea = document.getElementById('systemPrompt');
   const saveButton = document.getElementById('save');
-  const statusDiv = document.getElementById('status');
-  const promptSelect = document.getElementById('promptSelect');
   const resetButton = document.getElementById('reset');
+  const notificationDiv = document.getElementById('notification');
+  const statusDiv = document.getElementById('status');
 
   const grammarPrompts = {
     'grammar_analyzer': 
@@ -58,11 +59,21 @@ document.addEventListener('DOMContentLoaded', () => {
     'comparative': '你是一个比较英语语法分析助手。请分析给定的两个句子，找出它们之间的语法差异，并解释原因。总是用中文回复。\n\n输出格式：\n翻译1：[句子1的中文翻译]\n翻译2：[句子2的中文翻译]\n语法差异：[句子1和句子2的语法差异分析]\n原因解释：[语法差异的原因解释]'
   };
 
-  // Load saved API key, model, and system prompt
-  chrome.storage.sync.get(['apiKey', 'model', 'systemPrompt'], (result) => {
-    apiKeyInput.value = result.apiKey || '';
-    modelSelect.value = result.model || 'Qwen/Qwen2.5-7B-Instruct';
-    systemPromptTextarea.value = result.systemPrompt || grammarPrompts['default'];
+  // Function to show notification
+  function showNotification(message) {
+    notificationDiv.textContent = message;
+    notificationDiv.style.display = 'block';
+    setTimeout(() => {
+      notificationDiv.style.display = 'none';
+    }, 3000); // Hide after 3 seconds
+  }
+
+  // Load saved settings
+  chrome.storage.sync.get(['apiKey', 'model', 'promptSelect', 'systemPrompt'], function (data) {
+    apiKeyInput.value = data.apiKey || '';
+    modelSelect.value = data.model || 'meta-llama/Llama-3.3-70B-Instruct';
+    promptSelect.value = data.promptSelect || 'grammar_analyzer';
+    systemPromptTextarea.value = data.systemPrompt || grammarPrompts['grammar_analyzer'];
     // Set the selected value of the promptSelect dropdown
     for (const key in grammarPrompts) {
         if (grammarPrompts[key] === systemPromptTextarea.value) {
@@ -72,28 +83,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  saveButton.addEventListener('click', () => {
+  // Save settings
+  saveButton.addEventListener('click', function () {
     const apiKey = apiKeyInput.value;
     const model = modelSelect.value;
+    const promptSelectValue = promptSelect.value;
     const systemPrompt = systemPromptTextarea.value;
-    chrome.storage.sync.set({ apiKey: apiKey, model: model, systemPrompt: systemPrompt }, () => {
-      statusDiv.textContent = 'API Key, model, and system prompt saved.';
-      setTimeout(() => {
-        statusDiv.textContent = '';
-      }, 2000);
+
+    chrome.storage.sync.set({ apiKey: apiKey, model: model, promptSelect: promptSelectValue, systemPrompt: systemPrompt }, function () {
+      showNotification('选项已保存');
     });
   });
 
-  // Add event listener to systemPrompt textarea to handle prompt selection
+    // Add event listener to systemPrompt textarea to handle prompt selection
   systemPromptTextarea.addEventListener('focus', () => {
-    if (systemPromptTextarea.value === grammarPrompts['default']) {
+    if (systemPromptTextarea.value === grammarPrompts['grammar_analyzer']) {
       systemPromptTextarea.value = '';
     }
   });
 
   systemPromptTextarea.addEventListener('blur', () => {
     if (systemPromptTextarea.value === '') {
-      systemPromptTextarea.value = grammarPrompts[promptSelect.value] || grammarPrompts['default'];
+      systemPromptTextarea.value = grammarPrompts[promptSelect.value] || grammarPrompts['grammar_analyzer'];
     }
   });
 
@@ -102,22 +113,15 @@ document.addEventListener('DOMContentLoaded', () => {
     systemPromptTextarea.value = grammarPrompts[promptSelect.value];
   });
 
-  resetButton.addEventListener('click', () => {
-    chrome.storage.sync.get(['apiKey', 'model', 'systemPrompt'], (result) => {
-      apiKeyInput.value = result.apiKey || '';
-      modelSelect.value = result.model || 'Qwen/Qwen2.5-7B-Instruct';
-      systemPromptTextarea.value = result.systemPrompt || grammarPrompts['default'];
-      // Set the selected value of the promptSelect dropdown
-      for (const key in grammarPrompts) {
-          if (grammarPrompts[key] === systemPromptTextarea.value) {
-              promptSelect.value = key;
-              break;
-          }
-      }
-      statusDiv.textContent = 'Configuration reset to last saved.';
-      setTimeout(() => {
-        statusDiv.textContent = '';
-      }, 2000);
+
+  // Reset settings
+  resetButton.addEventListener('click', function () {
+    chrome.storage.sync.get(['promptSelect', 'apiKey', 'model', 'systemPrompt'], (result) => {
+        apiKeyInput.value = result.apiKey || '';
+        modelSelect.value = result.model || 'Qwen/Qwen2.5-7B-Instruct';
+        promptSelect.value = result.promptSelect || 'grammar_analyzer';
+        systemPromptTextarea.value = grammarPrompts[promptSelect.value];
+        showNotification('选项已重置');
     });
   });
 });

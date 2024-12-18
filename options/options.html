@@ -4,6 +4,25 @@
   <meta charset="UTF-8">
   <title>Englisher 选项</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .notification {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #fff;
+      color: #212121;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      border: 1px solid #e0e0e0;
+      transition: all 0.3s ease;
+    }
+    .notification.show {
+      display: block;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 p-6 h-screen">
   <div class="container mx-auto max-w-3xl bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
@@ -62,16 +81,25 @@
         <option value="Pro/google/gemma-2-9b-it">Pro/google/gemma-2-9b-it</option>
       </select>
     </div>
+    <div class="mb-4">
+      <label for="promptSelect" class="block text-gray-700 text-sm font-bold mb-2">预设系统提示词:</label>
+      <select id="promptSelect" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <option value="grammar_analyzer">语法分析器</option>
+        <option value="concise">简洁</option>
+        <option value="error_focused">错误聚焦</option>
+        <option value="comparative">比较</option>
+      </select>
+    </div>
     <div class="mb-10 flex-1">
-      <label for="systemPrompt" class="block text-gray-700 text-sm font-bold mb-2">系统提示:</label>
+      <label for="systemPrompt" class="block text-gray-700 text-sm font-bold mb-2">系统提示词:</label>
       <textarea id="systemPrompt" rows="5" placeholder="输入您的系统提示" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-full"></textarea>
     </div>
     <div class="flex space-x-2">
       <button id="reset" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex-1">重置</button>
       <button id="save" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex-1">保存</button>
     </div>
-    <div id="status" class="mt-2 font-bold"></div>
   </div>
+  <div id="notification" class="notification"></div>
   <script src="options.js"></script>
 </body>
 </html>

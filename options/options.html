@@ -27,6 +27,14 @@
       cursor: not-allowed;
       pointer-events: none;
     }
+    .prompt-input-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    button {
+      white-space: nowrap
+    }
   </style>
 </head>
 <body class="bg-gray-100 p-6 h-screen">
@@ -42,11 +50,13 @@
     </div>
     <div class="mb-4">
       <label for="promptSelect" class="block text-gray-700 text-sm font-bold mb-2">预设系统提示词:</label>
-      <div class="flex">
+      <div class="prompt-input-container">
         <select id="promptSelect" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline flex-1"></select>
-        <button id="deleteBtn" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2">删除</button>
-        <button id="replaceBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2" disabled>替换</button>
-        <button id="newBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2" disabled>新建</button>
+        <div class="flex space-x-2">
+          <button id="deleteBtn" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">删除</button>
+          <button id="replaceBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" disabled>替换</button>
+          <button id="newBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" disabled>新建</button>
+        </div>
       </div>
     </div>
     <div class="mb-10 flex-1">

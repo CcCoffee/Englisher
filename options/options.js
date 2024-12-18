@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const newButton = document.getElementById('newBtn');
   const deleteButton = document.getElementById('deleteBtn');
 
+  // 为动态创建的输入框添加 Tailwind CSS 样式
+  promptInput.className = 'shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline';
+  promptInput.style.width = '85%';
+  promptInput.style.marginRight = '10px';
+
   // 初始化模型选择器
   function initializeModelSelect() {
     fetch('../settings.json')
@@ -111,8 +116,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // 公共函数：将输入框恢复为选择框
   function restoreSelectFromInput() {
-    if (document.getElementById('promptInput')) {
-      promptInput.parentNode.replaceChild(promptSelect, promptInput);
+    // 安全检查：确保父节点存在且元素已插入DOM
+    const parentElement = promptInput.parentNode;
+    if (parentElement && document.body.contains(promptInput)) {
+      try {
+        parentElement.replaceChild(promptSelect, promptInput);
+      } catch (error) {
+        console.error('恢复选择框时出错:', error);
+      }
     }
   }
 
@@ -196,9 +207,17 @@ document.addEventListener('DOMContentLoaded', function () {
       if (systemPromptTextarea.value !== prompts[promptSelect.value]) {
         replaceButton.disabled = false;
         promptInput.value = promptSelect.options[promptSelect.selectedIndex].textContent;
-        promptInput.style.width = '85%';
-        promptInput.style.marginRight = '10px';
-        promptSelect.parentNode.replaceChild(promptInput, promptSelect);
+        
+        // 安全地替换元素
+        const parentElement = promptSelect.parentNode;
+        if (parentElement) {
+          try {
+            parentElement.replaceChild(promptInput, promptSelect);
+          } catch (error) {
+            console.error('替换元素时出错:', error);
+          }
+        }
+        
         newButton.disabled = true;
         deleteButton.disabled = true;
       } else {

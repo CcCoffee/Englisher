@@ -2,11 +2,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const apiKeyInput = document.getElementById('apiKey');
   const modelSelect = document.getElementById('model');
   const promptSelect = document.getElementById('promptSelect');
+  const promptInput = document.createElement('input');
   const systemPromptTextarea = document.getElementById('systemPrompt');
   const saveButton = document.getElementById('save');
   const resetButton = document.getElementById('reset');
   const notificationDiv = document.getElementById('notification');
-  const statusDiv = document.getElementById('status');
+  const replaceButton = document.getElementById('replaceBtn');
+  const newButton = document.getElementById('newBtn');
 
   const grammarPrompts = {
     'grammar_analyzer': 
@@ -69,59 +71,214 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Load saved settings
-  chrome.storage.sync.get(['apiKey', 'model', 'promptSelect', 'systemPrompt'], function (data) {
+  chrome.storage.sync.get(['apiKey', 'model', 'promptSelect', 'systemPrompt', 'customPrompts'], function (data) {
     apiKeyInput.value = data.apiKey || '';
     modelSelect.value = data.model || 'meta-llama/Llama-3.3-70B-Instruct';
-    promptSelect.value = data.promptSelect || 'grammar_analyzer';
-    systemPromptTextarea.value = data.systemPrompt || grammarPrompts['grammar_analyzer'];
+    const savedPromptSelectValue = data.promptSelect || 'grammar_analyzer';
+    const savedSystemPrompt = data.systemPrompt || grammarPrompts['grammar_analyzer'];
+    const customPrompts = data.customPrompts || {};
+
+    // Populate promptSelect with custom prompts
+    for (const key in customPrompts) {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = key;
+      promptSelect.appendChild(option);
+    }
+
     // Set the selected value of the promptSelect dropdown
     for (const key in grammarPrompts) {
-        if (grammarPrompts[key] === systemPromptTextarea.value) {
-            promptSelect.value = key;
-            break;
-        }
+      if (grammarPrompts[key] === savedSystemPrompt) {
+        promptSelect.value = key;
+        break;
+      }
     }
+
+    if (customPrompts[savedPromptSelectValue]) {
+      promptSelect.value = savedPromptSelectValue;
+      systemPromptTextarea.value = customPrompts[savedPromptSelectValue];
+    } else {
+      promptSelect.value = savedPromptSelectValue;
+      systemPromptTextarea.value = savedSystemPrompt;
+    }
+
+    // Initialize promptInput
+    promptInput.type = 'text';
+    promptInput.className = promptSelect.className;
+    promptInput.id = 'promptInput';
+    promptInput.value = promptSelect.options[promptSelect.selectedIndex].textContent;
+    promptInput.style.width = '85%';
+    promptInput.style.marginRight = '10px';
   });
 
   // Save settings
   saveButton.addEventListener('click', function () {
     const apiKey = apiKeyInput.value;
     const model = modelSelect.value;
-    const promptSelectValue = promptSelect.value;
+    const promptSelectValue = promptInput.value || promptSelect.value;
     const systemPrompt = systemPromptTextarea.value;
 
-    chrome.storage.sync.set({ apiKey: apiKey, model: model, promptSelect: promptSelectValue, systemPrompt: systemPrompt }, function () {
-      showNotification('选项已保存');
+    chrome.storage.sync.get(['customPrompts'], (result) => {
+      const customPrompts = result.customPrompts || {};
+      if (customPrompts[promptSelectValue]) {
+        customPrompts[promptSelectValue] = systemPrompt;
+      }
+      chrome.storage.sync.set({ apiKey: apiKey, model: model, promptSelect: promptSelectValue, systemPrompt: systemPrompt, customPrompts: customPrompts }, function () {
+        showNotification('选项已保存');
+      });
     });
   });
 
-    // Add event listener to systemPrompt textarea to handle prompt selection
-  systemPromptTextarea.addEventListener('focus', () => {
-    if (systemPromptTextarea.value === grammarPrompts['grammar_analyzer']) {
-      systemPromptTextarea.value = '';
+  // Reset settings
+  resetButton.addEventListener('click', function () {
+    chrome.storage.sync.get(['apiKey', 'model', 'promptSelect', 'systemPrompt', 'customPrompts'], (result) => {
+      apiKeyInput.value = result.apiKey || '';
+      modelSelect.value = result.model || 'meta-llama/Llama-3.3-70B-Instruct';
+      const savedPromptSelectValue = result.promptSelect || 'grammar_analyzer';
+      const savedSystemPrompt = result.systemPrompt || grammarPrompts['grammar_analyzer'];
+      const customPrompts = result.customPrompts || {};
+
+      // Clear custom prompts from promptSelect
+      while (promptSelect.options.length > 0) {
+        promptSelect.remove(0);
+      }
+
+      // Repopulate promptSelect with custom prompts
+      for (const key in customPrompts) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = key;
+        promptSelect.appendChild(option);
+      }
+
+      // Set the selected value of the promptSelect dropdown
+      for (const key in grammarPrompts) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = key;
+        promptSelect.appendChild(option);
+      }
+
+      if (customPrompts[savedPromptSelectValue]) {
+        promptSelect.value = savedPromptSelectValue;
+        systemPromptTextarea.value = customPrompts[savedPromptSelectValue];
+      } else {
+        promptSelect.value = savedPromptSelectValue;
+        systemPromptTextarea.value = savedSystemPrompt;
+      }
+
+      promptInput.value = promptSelect.options[promptSelect.selectedIndex].textContent;
+
+      showNotification('选项已重置');
+    });
+  });
+
+  // Add event listener to systemPromptTextarea to handle prompt selection
+  systemPromptTextarea.addEventListener('input', () => {
+    if (systemPromptTextarea.value !== grammarPrompts[promptSelect.value] && systemPromptTextarea.value !== promptInput.value) {
+      replaceButton.disabled = false;
+      promptInput.value = promptSelect.options[promptSelect.selectedIndex].textContent;
+      promptInput.style.width = '85%';
+      promptInput.style.marginRight = '10px';
+      promptSelect.parentNode.replaceChild(promptInput, promptSelect);
+      newButton.disabled = true;
+    } else {
+      replaceButton.disabled = true;
     }
   });
 
-  systemPromptTextarea.addEventListener('blur', () => {
-    if (systemPromptTextarea.value === '') {
-      systemPromptTextarea.value = grammarPrompts[promptSelect.value] || grammarPrompts['grammar_analyzer'];
+  // Add event listener to promptInput to handle new prompt name
+  promptInput.addEventListener('input', () => {
+    if (promptInput.value !== promptSelect.options[promptSelect.selectedIndex].textContent) {
+      newButton.disabled = false;
+    } else {
+      newButton.disabled = true;
     }
   });
 
   // Add event listener to promptSelect dropdown to update systemPrompt textarea
   promptSelect.addEventListener('change', () => {
-    systemPromptTextarea.value = grammarPrompts[promptSelect.value];
+    systemPromptTextarea.value = grammarPrompts[promptSelect.value] || grammarPrompts['grammar_analyzer'];
+    promptInput.value = promptSelect.options[promptSelect.selectedIndex].textContent;
+    replaceButton.disabled = true;
+    newButton.disabled = true;
   });
 
+  // Add event listener to replaceButton
+  replaceButton.addEventListener('click', () => {
+    const newPromptName = promptInput.value;
+    const newPromptContent = systemPromptTextarea.value;
 
-  // Reset settings
-  resetButton.addEventListener('click', function () {
-    chrome.storage.sync.get(['promptSelect', 'apiKey', 'model', 'systemPrompt'], (result) => {
-        apiKeyInput.value = result.apiKey || '';
-        modelSelect.value = result.model || 'Qwen/Qwen2.5-7B-Instruct';
-        promptSelect.value = result.promptSelect || 'grammar_analyzer';
-        systemPromptTextarea.value = grammarPrompts[promptSelect.value];
-        showNotification('选项已重置');
+    chrome.storage.sync.get(['customPrompts'], (result) => {
+      let customPrompts = result.customPrompts || {};
+      customPrompts[newPromptName] = newPromptContent;
+
+      chrome.storage.sync.set({ customPrompts: customPrompts }, function () {
+        showNotification('预设系统提示词已替换');
+
+        // Update promptSelect with new custom prompts
+        while (promptSelect.options.length > 0) {
+          promptSelect.remove(0);
+        }
+
+        for (const key in customPrompts) {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = key;
+          promptSelect.appendChild(option);
+        }
+
+        for (const key in grammarPrompts) {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = key;
+          promptSelect.appendChild(option);
+        }
+
+        promptSelect.value = newPromptName;
+        systemPromptTextarea.value = newPromptContent;
+
+        promptSelect.parentNode.replaceChild(promptSelect, promptInput);
+      });
+    });
+  });
+
+  // Add event listener to newButton
+  newButton.addEventListener('click', () => {
+    const newPromptName = promptInput.value;
+    const newPromptContent = systemPromptTextarea.value;
+
+    chrome.storage.sync.get(['customPrompts'], (result) => {
+      let customPrompts = result.customPrompts || {};
+      customPrompts[newPromptName] = newPromptContent;
+
+      chrome.storage.sync.set({ customPrompts: customPrompts }, function () {
+        showNotification('预设系统提示词已新建');
+
+        // Update promptSelect with new custom prompts
+        while (promptSelect.options.length > 0) {
+          promptSelect.remove(0);
+        }
+
+        for (const key in customPrompts) {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = key;
+          promptSelect.appendChild(option);
+        }
+
+        for (const key in grammarPrompts) {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = key;
+          promptSelect.appendChild(option);
+        }
+
+        promptSelect.value = newPromptName;
+        systemPromptTextarea.value = newPromptContent;
+
+        promptSelect.parentNode.replaceChild(promptSelect, promptInput);
+      });
     });
   });
 });

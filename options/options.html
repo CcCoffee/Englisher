@@ -83,12 +83,16 @@
     </div>
     <div class="mb-4">
       <label for="promptSelect" class="block text-gray-700 text-sm font-bold mb-2">预设系统提示词:</label>
-      <select id="promptSelect" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        <option value="grammar_analyzer">语法分析器</option>
-        <option value="concise">简洁</option>
-        <option value="error_focused">错误聚焦</option>
-        <option value="comparative">比较</option>
-      </select>
+      <div class="flex">
+        <select id="promptSelect" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline flex-1">
+          <option value="grammar_analyzer">语法分析器</option>
+          <option value="concise">简洁</option>
+          <option value="error_focused">错误聚焦</option>
+          <option value="comparative">比较</option>
+        </select>
+        <button id="replaceBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2" disabled>替换</button>
+        <button id="newBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2" disabled>新建</button>
+      </div>
     </div>
     <div class="mb-10 flex-1">
       <label for="systemPrompt" class="block text-gray-700 text-sm font-bold mb-2">系统提示词:</label>

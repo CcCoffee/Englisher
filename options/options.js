@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // 加载提示词到下拉框
-  function loadPrompts(prompts) {
+  function loadPrompts(prompts, newPromptName = null) {
     // 清除现有选项
     while (promptSelect.options.length > 0) {
       promptSelect.remove(0);
@@ -86,20 +86,53 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // 优先从存储获取 promptSelect 值，如果没有则使用默认值
-    chrome.storage.sync.get(['promptSelect'], function(result) {
+    chrome.storage.sync.get(['promptSelect', 'systemPrompt'], function(result) {
       const defaultPrompt = '语法分析器';
       const storedPrompt = result.promptSelect;
+      const storedSystemPrompt = result.systemPrompt;
 
-      if (storedPrompt && sortedKeys.includes(storedPrompt)) {
-        promptSelect.value = storedPrompt;
-        systemPromptTextarea.value = prompts[storedPrompt];
-      } else {
-        promptSelect.value = defaultPrompt;
-        systemPromptTextarea.value = prompts[defaultPrompt];
-        // 如果没有存储值或存储值无效，则保存默认值
+      // 确保 promptSelect 不为空
+      if (sortedKeys.length > 0) {
+        // 如果有新的提示词名称，优先选择新的提示词
+        if (newPromptName && sortedKeys.includes(newPromptName)) {
+          promptSelect.value = newPromptName;
+          systemPromptTextarea.value = prompts[newPromptName];
+          
+          // 保存新的提示词
+          chrome.storage.sync.set({ 
+            promptSelect: newPromptName,
+            systemPrompt: prompts[newPromptName]
+          });
+        }
+        // 如果存储的提示词有效，使用存储的提示词
+        else if (storedPrompt && sortedKeys.includes(storedPrompt)) {
+          promptSelect.value = storedPrompt;
+          systemPromptTextarea.value = prompts[storedPrompt];
+        } 
+        // 如果存储的提示词无效，使用默认提示词
+        else {
+          promptSelect.value = defaultPrompt;
+          systemPromptTextarea.value = prompts[defaultPrompt] || '';
+          
+          // 保存默认值
+          chrome.storage.sync.set({ 
+            promptSelect: defaultPrompt,
+            systemPrompt: prompts[defaultPrompt] || ''
+          });
+        }
+      } 
+      // 如果没有任何提示词，添加一个默认提示词
+      else {
+        const option = document.createElement('option');
+        option.value = defaultPrompt;
+        option.textContent = defaultPrompt;
+        promptSelect.appendChild(option);
+        
+        systemPromptTextarea.value = '';
+        
         chrome.storage.sync.set({ 
           promptSelect: defaultPrompt,
-          systemPrompt: prompts[defaultPrompt]
+          systemPrompt: ''
         });
       }
     });
@@ -167,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
         prompts: prompts
       }, function () {
         showNotification('选项已保存');
-        loadPrompts(prompts);
+        loadPrompts(prompts, promptSelectValue);
       });
     });
   });
@@ -272,8 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
         prompts: prompts
       }, function () {
         showNotification('预设系统提示词已修改');
-        loadPrompts(prompts);
-        promptSelect.value = newPromptName;
+        loadPrompts(prompts, newPromptName);
         systemPromptTextarea.value = newPromptContent;
 
         // 恢复选择框
@@ -302,8 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
         prompts: prompts
       }, function () {
         showNotification('预设系统提示词已新建');
-        loadPrompts(prompts);
-        promptSelect.value = newPromptName;
+        loadPrompts(prompts, newPromptName);
         systemPromptTextarea.value = newPromptContent;
 
         // 恢复选择框
